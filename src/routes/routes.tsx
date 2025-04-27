@@ -34,6 +34,7 @@ import SettingsPage from "@/views/pages/auth/setting/settings-page";
 import FinanceUserDashboardPage from "@/views/pages/auth/dashboard/finance/user/finance-user-dashboard-page";
 import EpiUserDashboardPage from "@/views/pages/auth/dashboard/epi/user/epi-user-dashboard-page";
 import { CertificatePaymentEditPage } from "@/views/pages/auth/vaccine/payment/finance/user/edit/certificate-payment-edit-page";
+import { BarcodeDetailsPage } from "@/views/pages/site/barcode-deatils-page";
 
 export const getEpiSuperRouter = (
   user: User | Epi | Finance,
@@ -110,6 +111,19 @@ export const getEpiSuperRouter = (
                 authenticated={authenticated}
               />
             }
+          />
+        </Route>
+        <Route
+          path="/"
+          element={
+            <I18nextProvider i18n={i18n}>
+              <GuestLayout />
+            </I18nextProvider>
+          }
+        >
+          <Route
+            path="person/vaccine/detail/:id"
+            element={<BarcodeDetailsPage />}
           />
         </Route>
         {/* Catch-all Route for Errors */}
@@ -196,6 +210,19 @@ export const getEpiAdminRouter = (
           />
         </Route>
         {/* Catch-all Route for Errors */}
+        <Route
+          path="/"
+          element={
+            <I18nextProvider i18n={i18n}>
+              <GuestLayout />
+            </I18nextProvider>
+          }
+        >
+          <Route
+            path="person/vaccine/detail/:id"
+            element={<BarcodeDetailsPage />}
+          />
+        </Route>
         <Route path="*" element={<Unauthorized />} />
       </Routes>
     </BrowserRouter>
@@ -258,6 +285,19 @@ export const getEpiUserRouter = (
           />
         </Route>
         {/* Catch-all Route for Errors */}
+        <Route
+          path="/"
+          element={
+            <I18nextProvider i18n={i18n}>
+              <GuestLayout />
+            </I18nextProvider>
+          }
+        >
+          <Route
+            path="person/vaccine/detail/:id"
+            element={<BarcodeDetailsPage />}
+          />
+        </Route>
         <Route path="*" element={<Unauthorized />} />
       </Routes>
     </BrowserRouter>
@@ -341,6 +381,19 @@ export const getFinanceSuperRouter = (
           />
         </Route>
         {/* Catch-all Route for Errors */}
+        <Route
+          path="/"
+          element={
+            <I18nextProvider i18n={i18n}>
+              <GuestLayout />
+            </I18nextProvider>
+          }
+        >
+          <Route
+            path="person/vaccine/detail/:id"
+            element={<BarcodeDetailsPage />}
+          />
+        </Route>
         <Route path="*" element={<Unauthorized />} />
       </Routes>
     </BrowserRouter>
@@ -425,6 +478,19 @@ export const getFinanceAdminRouter = (
           />
         </Route>
         {/* Catch-all Route for Errors */}
+        <Route
+          path="/"
+          element={
+            <I18nextProvider i18n={i18n}>
+              <GuestLayout />
+            </I18nextProvider>
+          }
+        >
+          <Route
+            path="person/vaccine/detail/:id"
+            element={<BarcodeDetailsPage />}
+          />
+        </Route>
         <Route path="*" element={<Unauthorized />} />
       </Routes>
     </BrowserRouter>
@@ -561,6 +627,10 @@ export const getGuestRouter = () => {
           <Route path="/auth/user/login" element={<UserLoginPage />} />
           <Route path="/auth/epi/login" element={<EpiLoginPage />} />
           <Route path="/auth/finance/login" element={<FinanceLoginPage />} />
+          <Route
+            path="person/vaccine/detail/:id"
+            element={<BarcodeDetailsPage />}
+          />
         </Route>
         {/* Catch-all Route for Errors */}
         <Route path="*" element={<Unauthorized />} />
