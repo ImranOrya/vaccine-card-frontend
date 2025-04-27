@@ -23,8 +23,8 @@ import {
 } from "@/components/ui/table";
 
 export interface AddVaccinePartProps {
-  onComplete: (vaccine: Vaccine) => void;
-  onEditComplete: (vaccine: Vaccine) => void;
+  onComplete: (vaccine: Vaccine) => boolean;
+  onEditComplete: (vaccine: Vaccine) => boolean;
   editVaccine?: Vaccine;
 }
 const inialeVaccine = {
@@ -173,13 +173,14 @@ export default function AddVaccinePart(props: AddVaccinePartProps) {
     }
 
     // 3.
+    let clearData = false;
     if (editVaccine) {
-      onEditComplete(userData.vaccine);
+      clearData = onEditComplete(userData.vaccine);
     } else {
       userData.vaccine.id = generateUUID();
-      onComplete(userData.vaccine);
+      clearData = onComplete(userData.vaccine);
     }
-    setUserData(inialeVaccine);
+    if (clearData) setUserData(inialeVaccine);
   };
   const editDose = (dose: Dose) => {
     setUserData((prev) => ({
@@ -415,7 +416,7 @@ export default function AddVaccinePart(props: AddVaccinePartProps) {
         <Table className="bg-card col-span-full w-full">
           <TableHeader className="rtl:text-3xl-rtl ltr:text-xl-ltr bg-primary/5">
             <TableRow className="hover:bg-transparent border-none">
-              <TableHead className="text-start">{t("dose")}</TableHead>
+              <TableHead className="text-start">{t("doses")}</TableHead>
               <TableHead className="text-start">{t("batch_number")}</TableHead>
               <TableHead className="text-start">{t("vaccine_date")}</TableHead>
               <TableHead className="text-center">{t("action")}</TableHead>

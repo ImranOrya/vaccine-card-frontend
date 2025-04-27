@@ -237,6 +237,7 @@ export default function EditUserPermissions(props: EditUserPermissionsProps) {
   const hasEdit = permissions.sub.get(
     PermissionEnum.users.sub.user_information
   )?.edit;
+
   return (
     <Card>
       <CardHeader className="space-y-0">

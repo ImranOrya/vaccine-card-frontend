@@ -3,6 +3,7 @@ import APICombobox from "@/components/custom-ui/combobox/APICombobox";
 import CustomInput from "@/components/custom-ui/input/CustomInput";
 import { toast } from "@/components/ui/use-toast";
 import axiosClient from "@/lib/axois-client";
+import { CountryEnum } from "@/lib/constants";
 import { setServerError } from "@/validation/validation";
 import { FileText, Save } from "lucide-react";
 import { useState } from "react";
@@ -85,7 +86,7 @@ export function AddCenterPart(props: IAddCenterPartProps) {
         selectedItem={center?.province?.name}
         placeHolder={t("select_a")}
         errorMessage={error.get("province")}
-        apiUrl={"provinces/" + 1}
+        apiUrl={"provinces/" + CountryEnum.afghanistan}
         mode="single"
       />
       {center?.province && (

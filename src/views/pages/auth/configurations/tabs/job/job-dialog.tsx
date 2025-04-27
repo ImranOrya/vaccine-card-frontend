@@ -9,13 +9,14 @@ import { useModelOnRequestHide } from "@/components/custom-ui/model/hook/useMode
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import ButtonSpinner from "@/components/custom-ui/spinner/ButtonSpinner";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import PrimaryButton from "@/components/custom-ui/button/PrimaryButton";
 import CustomInput from "@/components/custom-ui/input/CustomInput";
 import axiosClient from "@/lib/axois-client";
 import { toast } from "@/components/ui/use-toast";
 import { setServerError, validate } from "@/validation/validation";
 import { Job } from "@/database/tables";
+import { useGeneralAuthState } from "@/context/AuthContextProvider";
 
 export interface JobDialogProps {
   onComplete: (job: Job) => void;
@@ -24,6 +25,7 @@ export interface JobDialogProps {
 export default function JobDialog(props: JobDialogProps) {
   const { onComplete, job } = props;
   const [loading, setLoading] = useState(false);
+  const { user } = useGeneralAuthState();
   const [error, setError] = useState(new Map<string, string>());
   const [userData, setUserData] = useState({
     farsi: "",
@@ -32,7 +34,14 @@ export default function JobDialog(props: JobDialogProps) {
   });
   const { modelOnRequestHide } = useModelOnRequestHide();
   const { t } = useTranslation();
+  const authData = useMemo(() => {
+    const isFinance = user.role.name.startsWith("finance");
 
+    return {
+      job_add_url: isFinance ? "finance/job/store" : "epi/job/store",
+      job_edit_url: isFinance ? "finance/job/update" : "epi/job/update",
+    };
+  }, [user.role.name]);
   const fetch = async () => {
     try {
       const response = await axiosClient.get(`job/${job?.id}`);
@@ -79,7 +88,7 @@ export default function JobDialog(props: JobDialogProps) {
       formData.append("english", userData.english);
       formData.append("farsi", userData.farsi);
       formData.append("pashto", userData.pashto);
-      const response = await axiosClient.post("job/store", formData);
+      const response = await axiosClient.post(authData.job_add_url, formData);
       if (response.status === 200) {
         toast({
           toastType: "SUCCESS",
@@ -125,7 +134,7 @@ export default function JobDialog(props: JobDialogProps) {
       formData.append("english", userData.english);
       formData.append("farsi", userData.farsi);
       formData.append("pashto", userData.pashto);
-      const response = await axiosClient.post(`job/update`, formData);
+      const response = await axiosClient.post(authData.job_edit_url, formData);
       if (response.status === 200) {
         toast({
           toastType: "SUCCESS",

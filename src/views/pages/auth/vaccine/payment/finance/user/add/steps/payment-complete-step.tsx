@@ -17,7 +17,6 @@ export interface ICompleteStepProps {
 export default function PaymentCompleteStep(props: ICompleteStepProps) {
   const {
     description,
-    closeModel,
     closeText,
     successText,
     downloadText,
@@ -68,7 +67,7 @@ export default function PaymentCompleteStep(props: ICompleteStepProps) {
         }}
         errorText={t("error")}
         cancelText={t("cancel")}
-        onComplete={closeModel}
+        onComplete={() => {}}
         apiUrl={"reciept/download"}
         params={{
           passport_number: passport_number,

@@ -246,5 +246,7 @@
   "payment_success": "Payment is completed successfully.",
   "payment_info": "Payment information.",
   "payment_info_des": "All customer payment information are listed here.",
-  "visit_date": "Visit date"
+  "visit_date": "Visit date",
+  "item_exist": "Item already exist in the list.",
+  "doses": "Doses"
 }

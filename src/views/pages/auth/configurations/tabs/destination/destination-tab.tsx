@@ -99,31 +99,6 @@ export default function DestinationTab(props: DestinationTabProps) {
       };
     });
   };
-  const remove = async (destination: Destination) => {
-    try {
-      // 1. Remove from backend
-      const response = await axiosClient.delete(
-        `destination/${destination.id}`
-      );
-      if (response.status === 200) {
-        // 2. Remove from frontend
-        setDestinations((prevDestinations) => ({
-          unFilterList: prevDestinations.unFilterList.filter(
-            (item) => item.id !== destination.id
-          ),
-          filterList: prevDestinations.filterList.filter(
-            (item) => item.id !== destination.id
-          ),
-        }));
-        toast({
-          toastType: "SUCCESS",
-          description: response.data.message,
-        });
-      }
-    } catch (error: any) {
-      console.log(error);
-    }
-  };
 
   const dailog = useMemo(
     () => (
@@ -153,7 +128,6 @@ export default function DestinationTab(props: DestinationTabProps) {
   );
   const hasEdit = destination?.edit;
   const hasAdd = destination?.add;
-  const hasDelete = destination?.delete;
   const hasView = destination?.view;
   return (
     <div className="relative">
@@ -217,7 +191,7 @@ export default function DestinationTab(props: DestinationTabProps) {
               (destination: Destination, index: number) => (
                 <TableRowIcon
                   read={hasView}
-                  remove={hasDelete}
+                  remove={false}
                   edit={hasEdit}
                   onEdit={async (destination: Destination) => {
                     setSelected({
@@ -227,7 +201,7 @@ export default function DestinationTab(props: DestinationTabProps) {
                   }}
                   key={index}
                   item={destination}
-                  onRemove={remove}
+                  onRemove={async () => {}}
                   onRead={async () => {}}
                 >
                   <TableCell className="font-medium">

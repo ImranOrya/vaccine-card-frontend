@@ -98,27 +98,6 @@ export default function JobTab(props: JobTabProps) {
       };
     });
   };
-  const remove = async (job: Job) => {
-    try {
-      // 1. Remove from backend
-      const response = await axiosClient.delete(`job/${job.id}`);
-      if (response.status === 200) {
-        // 2. Remove from frontend
-        setJobs((prevJobs) => ({
-          unFilterList: prevJobs.unFilterList.filter(
-            (item) => item.id !== job.id
-          ),
-          filterList: prevJobs.filterList.filter((item) => item.id !== job.id),
-        }));
-        toast({
-          toastType: "SUCCESS",
-          description: response.data.message,
-        });
-      }
-    } catch (error: any) {
-      console.log(error);
-    }
-  };
 
   const dailog = useMemo(
     () => (
@@ -145,7 +124,6 @@ export default function JobTab(props: JobTabProps) {
   );
   const hasEdit = job?.edit;
   const hasAdd = job?.add;
-  const hasDelete = job?.delete;
   const hasView = job?.view;
   return (
     <div className="relative">
@@ -201,7 +179,7 @@ export default function JobTab(props: JobTabProps) {
             jobs.filterList.map((job: Job, index: number) => (
               <TableRowIcon
                 read={hasView}
-                remove={hasDelete}
+                remove={false}
                 edit={hasEdit}
                 onEdit={async (job: Job) => {
                   setSelected({
@@ -211,7 +189,7 @@ export default function JobTab(props: JobTabProps) {
                 }}
                 key={index}
                 item={job}
-                onRemove={remove}
+                onRemove={async () => {}}
                 onRead={async () => {}}
               >
                 <TableCell className="font-medium">{job.id}</TableCell>

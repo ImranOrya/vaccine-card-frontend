@@ -69,9 +69,7 @@ export default function CardDownloadCompleteStep(props: ICompleteStepProps) {
         }}
         errorText={t("error")}
         cancelText={t("cancel")}
-        onComplete={() => {
-          closeModel();
-        }}
+        onComplete={() => {}}
         apiUrl={"epi/generate/certificate"}
         params={{
           passport_number: passport_number,

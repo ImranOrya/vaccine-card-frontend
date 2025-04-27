@@ -14,25 +14,41 @@ import { useGlobalState } from "@/context/GlobalStateContext";
 import { Vaccine } from "@/database/tables";
 import AddVaccinePart from "../../parts/add-vaccine-part";
 import { Edit, Trash2 } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
 
 export default function AddVaccineDetail() {
   const { userData, setUserData } = useContext(StepperContext);
   const [onEdit, setOnEdit] = useState<Vaccine | undefined>();
   const { t } = useTranslation();
   const [state] = useGlobalState();
+
   const onVaccineComplete = (vaccine: Vaccine) => {
     const vaccines = userData.vaccines_list;
     if (vaccines) {
-      setUserData((prev: any) => ({
-        ...prev,
-        vaccines_list: [...prev.vaccines_list, vaccine],
-      }));
+      const alreadyExists = vaccines.some(
+        (v: any) => v?.vaccine_type?.id === vaccine?.vaccine_type?.id
+      );
+      if (alreadyExists) {
+        toast({
+          toastType: "ERROR",
+          title: t("error"),
+          description: t("item_exist"),
+        });
+        return false;
+      } else {
+        setUserData((prev: any) => ({
+          ...prev,
+          vaccines_list: [...prev.vaccines_list, vaccine],
+        }));
+      }
     } else {
       setUserData((prev: any) => ({
         ...prev,
         vaccines_list: [vaccine],
       }));
     }
+    // Clear inpput data
+    return true;
   };
   const removeVaccine = (id: string) => {
     setUserData((prev: any) => ({
@@ -43,17 +59,36 @@ export default function AddVaccineDetail() {
     }));
   };
   const onEditComplete = (updatedVac: Vaccine) => {
-    setUserData((prev: any) => {
-      const filtered = prev.vaccines_list.filter(
-        (v: Vaccine) => v.id !== updatedVac.id
-      );
+    const vaccines = userData.vaccines_list;
 
-      return {
-        ...prev,
-        vaccines_list: [...filtered, updatedVac],
-      };
-    });
-    setOnEdit(undefined);
+    if (vaccines) {
+      const alreadyExists = vaccines.some(
+        (v: any) => v?.vaccine_type?.id === updatedVac?.vaccine_type?.id
+      );
+      if (alreadyExists) {
+        toast({
+          toastType: "ERROR",
+          title: t("error"),
+          description: t("item_exist"),
+        });
+        // do not clear input data
+        return false;
+      } else {
+      }
+      setUserData((prev: any) => {
+        const filtered = prev.vaccines_list.filter(
+          (v: Vaccine) => v.id !== updatedVac.id
+        );
+
+        return {
+          ...prev,
+          vaccines_list: [...filtered, updatedVac],
+        };
+      });
+      setOnEdit(undefined);
+      // Clear inpput data
+    }
+    return true;
   };
   const editVaccine = (vac: Vaccine) => {
     setOnEdit(vac); // Just set for editing, don't remove yet

@@ -9,7 +9,7 @@ import { useModelOnRequestHide } from "@/components/custom-ui/model/hook/useMode
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import ButtonSpinner from "@/components/custom-ui/spinner/ButtonSpinner";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import PrimaryButton from "@/components/custom-ui/button/PrimaryButton";
 import CustomInput from "@/components/custom-ui/input/CustomInput";
 import axiosClient from "@/lib/axois-client";
@@ -18,6 +18,7 @@ import { setServerError, validate } from "@/validation/validation";
 import { Destination, DestinationType } from "@/database/tables";
 import ColorPicker from "@/components/custom-ui/picker/color-picker";
 import APICombobox from "@/components/custom-ui/combobox/APICombobox";
+import { useGeneralAuthState } from "@/context/AuthContextProvider";
 
 export interface DestinationDialogProps {
   onComplete: (destination: Destination) => void;
@@ -25,6 +26,7 @@ export interface DestinationDialogProps {
 }
 export default function DestinationDialog(props: DestinationDialogProps) {
   const { onComplete, destination } = props;
+  const { user } = useGeneralAuthState();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(new Map<string, string>());
   const [userData, setUserData] = useState<{
@@ -42,7 +44,18 @@ export default function DestinationDialog(props: DestinationDialogProps) {
   });
   const { modelOnRequestHide } = useModelOnRequestHide();
   const { t } = useTranslation();
+  const authData = useMemo(() => {
+    const isFinance = user.role.name.startsWith("finance");
 
+    return {
+      destination_add_url: isFinance
+        ? "finance/destination/store"
+        : "epi/destination/store",
+      destination_edit_url: isFinance
+        ? "finance/destination/update"
+        : "epi/destination/update",
+    };
+  }, [user.role.name]);
   const fetch = async () => {
     try {
       const response = await axiosClient.get(`destination/${destination?.id}`);
@@ -60,6 +73,7 @@ export default function DestinationDialog(props: DestinationDialogProps) {
     const { name, value } = e.target;
     setUserData({ ...userData, [name]: value });
   };
+
   const store = async () => {
     try {
       if (loading) return;
@@ -96,7 +110,10 @@ export default function DestinationDialog(props: DestinationDialogProps) {
       formData.append("color", userData.color);
       if (userData.type)
         formData.append("destination_type_id", userData.type.id);
-      const response = await axiosClient.post("destination/store", formData);
+      const response = await axiosClient.post(
+        authData.destination_add_url,
+        formData
+      );
       if (response.status === 200) {
         toast({
           toastType: "SUCCESS",
@@ -156,7 +173,10 @@ export default function DestinationDialog(props: DestinationDialogProps) {
       formData.append("color", userData.color);
       if (userData.type)
         formData.append("destination_type_id", userData.type.id);
-      const response = await axiosClient.post(`destination/update`, formData);
+      const response = await axiosClient.post(
+        authData.destination_edit_url,
+        formData
+      );
       if (response.status === 200) {
         toast({
           toastType: "SUCCESS",

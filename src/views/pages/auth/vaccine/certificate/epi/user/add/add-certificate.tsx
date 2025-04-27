@@ -10,17 +10,51 @@ import { setServerError } from "@/validation/validation";
 import { Check, Database, User as UserIcon } from "lucide-react";
 import AddPersonalDetail from "./steps/add-personal-detail";
 import AddVaccineDetail from "./steps/add-vaccine-detail";
-import { Vaccine } from "@/database/tables";
 import { isString } from "@/lib/utils";
+import { Vaccine } from "@/database/tables";
+// import { Vaccine } from "@/database/tables";
+// import { isString } from "@/lib/utils";
 
 export default function AddCertificate() {
   const { t } = useTranslation();
   const { modelOnRequestHide } = useModelOnRequestHide();
   const beforeStepSuccess = async (
-    _userData: any,
-    _currentStep: number,
-    _setError: Dispatch<SetStateAction<Map<string, string>>>
+    userData: any,
+    currentStep: number,
+    setError: Dispatch<SetStateAction<Map<string, string>>>
   ) => {
+    if (currentStep == 1) {
+      try {
+        let formData = new FormData();
+        formData.append("passport_number", userData?.passport_number);
+        const response = await axiosClient.post(
+          "person/passport/exist",
+          formData
+        );
+        if (response.status == 200) {
+          const passportExist = response.data.passport_found === true;
+          if (passportExist) {
+            const errMap = new Map<string, string>();
+            if (passportExist) {
+              errMap.set(
+                "passport_number",
+                `${t("passport_number")} ${t("is_registered_before")}`
+              );
+            }
+            setError(errMap);
+            return false;
+          }
+        }
+      } catch (error: any) {
+        toast({
+          toastType: "ERROR",
+          title: t("error"),
+          description: error.response.data.message,
+        });
+        console.log(error);
+        return false;
+      }
+    }
     return true;
   };
   const stepsCompleted = async (
