@@ -60,7 +60,7 @@ export default function AddCertificate() {
             added_by: dose.added_by,
           });
         });
-        item.doses.push(doses);
+        item.doses = doses;
         formatedVaccines.push(item);
       });
       const response = await axiosClient.post("epi/certificate/detail/store", {
