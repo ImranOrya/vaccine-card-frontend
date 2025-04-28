@@ -5,7 +5,7 @@ import CustomDatePicker from "@/components/custom-ui/DatePicker/CustomDatePicker
 import CustomInput from "@/components/custom-ui/input/CustomInput";
 import { toast } from "@/components/ui/use-toast";
 import { useGlobalState } from "@/context/GlobalStateContext";
-import { Dose, Vaccine } from "@/database/tables";
+import { Dose, Vaccine, VaccineCenter } from "@/database/tables";
 import { dateObjectToString, generateUUID } from "@/lib/utils";
 import { validate } from "@/validation/validation";
 import { ChevronsDown, Edit, FileText, Trash2 } from "lucide-react";
@@ -44,6 +44,7 @@ const inialeVaccine = {
     vaccine_date: new DateObject(new Date()),
     new_center: false,
   },
+  refetch_centers: "no",
 };
 export default function AddVaccinePart(props: AddVaccinePartProps) {
   const { onComplete, editVaccine, onEditComplete } = props;
@@ -55,6 +56,7 @@ export default function AddVaccinePart(props: AddVaccinePartProps) {
       new_center: boolean;
       dose: string;
     };
+    refetch_centers: string;
   }>(inialeVaccine);
   const [error, setError] = useState<Map<string, string>>(new Map());
   const { t } = useTranslation();
@@ -194,6 +196,7 @@ export default function AddVaccinePart(props: AddVaccinePartProps) {
     }));
     removeDose(dose.id);
   };
+
   return (
     <>
       <APICombobox
@@ -309,6 +312,7 @@ export default function AddVaccinePart(props: AddVaccinePartProps) {
           apiUrl={"vaccine-centers"}
           cacheData={false}
           mode="single"
+          key={userData?.refetch_centers}
         />
         <CustomCheckbox
           checked={userData.configurations["new_center"]}
@@ -328,7 +332,22 @@ export default function AddVaccinePart(props: AddVaccinePartProps) {
         />
       </div>
       {userData.configurations.new_center && (
-        <AddCenterPart onComplete={function (): void {}} />
+        <AddCenterPart
+          onComplete={function (vaccine_center: VaccineCenter): void {
+            setUserData((prev) => ({
+              ...prev,
+              vaccine: {
+                ...prev.vaccine,
+                vaccine_center: vaccine_center,
+              },
+              configurations: {
+                ...prev.configurations,
+                new_center: false,
+              },
+              refetch_centers: "yes",
+            }));
+          }}
+        />
       )}
       <div className="col-span-full border-t mt-20 pt-6 relative flex flex-col gap-y-8">
         <h1 className="absolute uppercase text-tertiary font-bold ltr:text-[22px] bg-card -top-5">

@@ -96,6 +96,7 @@ export default function AddUserInformation() {
         errorMessage={error.get("department")}
         apiUrl={"destinations"}
         mode="single"
+        cacheData={false}
       />
       <APICombobox
         placeholderText={t("search_item")}
@@ -111,6 +112,7 @@ export default function AddUserInformation() {
         errorMessage={error.get("job")}
         apiUrl={"jobs"}
         mode="single"
+        cacheData={false}
       />
       <APICombobox
         placeholderText={t("search_item")}

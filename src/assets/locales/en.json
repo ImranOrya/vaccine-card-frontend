@@ -248,5 +248,8 @@
   "payment_info_des": "All customer payment information are listed here.",
   "visit_date": "Visit date",
   "item_exist": "Item already exist in the list.",
-  "doses": "Doses"
+  "doses": "Doses",
+  "per_data_vac_saved": "Person information saved successfully.",
+  "center_name": "Center name",
+  "payment_status": "Payment status"
 }

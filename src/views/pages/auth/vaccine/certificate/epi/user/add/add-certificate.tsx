@@ -217,7 +217,7 @@ export default function AddCertificate() {
                 closeText={t("close")}
                 againText={t("again")}
                 closeModel={closeModel}
-                description={t("user_acc_crea")}
+                description={t("per_data_vac_saved")}
               />
             ),
             validationRules: [],

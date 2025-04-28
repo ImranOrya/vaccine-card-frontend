@@ -9,15 +9,6 @@ export default function FinanceUserDashboardPage() {
     <>
       {/* Cards */}
       <div className="px-1 sm:px-2 pt-4 grid grid-cols-2 md:grid-cols-4">
-        {/* {loading ? (
-          <>
-            {cardLoader}
-            {cardLoader}
-            {cardLoader}
-            {cardLoader}
-            {cardLoader}
-          </>
-        ) : ( */}
         <>
           <DashboardCard
             loading={false}
@@ -25,7 +16,7 @@ export default function FinanceUserDashboardPage() {
             title={t("country")}
             description={t("january")}
             className="overflow-hidden flex-1 space-y-2 h-full p-4"
-            value={100}
+            value={200}
             symbol="+"
             icon={
               <BarChart2 className="sm:size-[54px] min-w-[32px] min-h-[32px]" />
@@ -37,7 +28,7 @@ export default function FinanceUserDashboardPage() {
             title={t("district")}
             description={t("january")}
             className="overflow-hidden flex-1 space-y-2 h-full p-4"
-            value={20000}
+            value={1000}
             symbol="+"
             icon={
               <BarChart2 className="sm:size-[54px] min-w-[32px] min-h-[32px]" />
@@ -49,7 +40,7 @@ export default function FinanceUserDashboardPage() {
             title={t("area")}
             description={t("area")}
             className="overflow-hidden flex-1 space-y-2 h-full p-4"
-            value={566000}
+            value={1600}
             symbol="+"
             icon={
               <BarChart2 className="sm:size-[54px] min-w-[32px] min-h-[32px]" />
@@ -61,7 +52,7 @@ export default function FinanceUserDashboardPage() {
             title={t("job")}
             description={t("job")}
             className="overflow-hidden flex-1 space-y-2 h-full p-4"
-            value={600}
+            value={40}
             symbol="+"
             icon={
               <PersonStanding className="sm:size-[54px] min-w-[32px] min-h-[32px]" />

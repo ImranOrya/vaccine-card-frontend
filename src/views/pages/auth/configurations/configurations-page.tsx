@@ -14,6 +14,7 @@ import {
 } from "@/components/custom-ui/Breadcrumb/Breadcrumb";
 import VaccineTypeTab from "./tabs/vaccine/type/vaccine-type-tab";
 import VaccineCenterTab from "./tabs/vaccine/center/vaccine-center-tab";
+import PaymentTab from "./tabs/payment/payment-tab";
 
 export default function ConfigurationsPage() {
   const { user } = useUserAuthState();
@@ -63,6 +64,15 @@ export default function ConfigurationsPage() {
           <MapPinHouse className="size-[16px] ltr:mr-1 rtl:ml-1" />
           {t("vaccine_center")}
         </TabsTrigger>
+      ) : key == PermissionEnum.configurations.sub.configuration_payment ? (
+        <TabsTrigger
+          key={index}
+          value={key.toString()}
+          className="gap-x-1 bg-card shadow rtl:text-2xl-rtl ltr:text-xl-ltr data-[state=active]:bg-primary data-[state=active]:text-tertiary"
+        >
+          <MapPinHouse className="size-[16px] ltr:mr-1 rtl:ml-1" />
+          {t("payment")}
+        </TabsTrigger>
       ) : undefined;
     }
   );
@@ -104,6 +114,12 @@ export default function ConfigurationsPage() {
           className="w-full px-4 pt-8"
         >
           <VaccineTypeTab permissions={per} />
+        </TabsContent>
+        <TabsContent
+          value={PermissionEnum.configurations.sub.configuration_payment.toString()}
+          className="w-full px-4 pt-8"
+        >
+          <PaymentTab permissions={per} />
         </TabsContent>
       </Tabs>
     </>

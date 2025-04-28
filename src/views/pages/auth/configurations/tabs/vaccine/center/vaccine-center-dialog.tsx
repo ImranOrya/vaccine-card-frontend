@@ -15,27 +15,33 @@ import CustomInput from "@/components/custom-ui/input/CustomInput";
 import axiosClient from "@/lib/axois-client";
 import { toast } from "@/components/ui/use-toast";
 import { setServerError, validate } from "@/validation/validation";
-import { Job } from "@/database/tables";
+import { VaccineCenterType } from "@/lib/types";
+import APICombobox from "@/components/custom-ui/combobox/APICombobox";
+import { CountryEnum } from "@/lib/constants";
 
-export interface JobDialogProps {
-  onComplete: (job: Job) => void;
-  job?: Job;
+export interface VaccineCenterDialogProps {
+  onComplete: (VaccineCenter: VaccineCenterType) => void;
+  VaccineCenter?: VaccineCenterType;
 }
-export default function JobDialog(props: JobDialogProps) {
-  const { onComplete, job } = props;
+export default function VaccineCenterDialog(props: VaccineCenterDialogProps) {
+  const { onComplete, VaccineCenter } = props;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(new Map<string, string>());
-  const [userData, setUserData] = useState({
-    farsi: "",
-    english: "",
-    pashto: "",
+  const [userData, setUserData] = useState<VaccineCenterType>({
+    id: "",
+    name: "",
+    description: "",
+    province: undefined,
+    district: undefined,
   });
   const { modelOnRequestHide } = useModelOnRequestHide();
   const { t } = useTranslation();
 
   const fetch = async () => {
     try {
-      const response = await axiosClient.get(`job/${job?.id}`);
+      const response = await axiosClient.get(
+        `epi/vaccine/center/${VaccineCenter?.id}`
+      );
       if (response.status === 200) {
         setUserData(response.data);
       }
@@ -44,7 +50,7 @@ export default function JobDialog(props: JobDialogProps) {
     }
   };
   useEffect(() => {
-    if (job) fetch();
+    if (VaccineCenter) fetch();
   }, []);
   const handleChange = (e: any) => {
     const { name, value } = e.target;
@@ -58,15 +64,15 @@ export default function JobDialog(props: JobDialogProps) {
       const passed = await validate(
         [
           {
-            name: "english",
+            name: "name",
             rules: ["required"],
           },
           {
-            name: "farsi",
+            name: "province",
             rules: ["required"],
           },
           {
-            name: "pashto",
+            name: "district",
             rules: ["required"],
           },
         ],
@@ -76,16 +82,21 @@ export default function JobDialog(props: JobDialogProps) {
       if (!passed) return;
       // 2. Store
       let formData = new FormData();
-      formData.append("english", userData.english);
-      formData.append("farsi", userData.farsi);
-      formData.append("pashto", userData.pashto);
-      const response = await axiosClient.post("job/store", formData);
+      formData.append("name", userData.name);
+      if (userData.province)
+        formData.append("province_id", userData.province?.id);
+      if (userData.district)
+        formData.append("district_id", userData.district?.id);
+      const response = await axiosClient.post(
+        "epi/vaccine/center/store",
+        formData
+      );
       if (response.status === 200) {
         toast({
           toastType: "SUCCESS",
           description: response.data.message,
         });
-        onComplete(response.data.job);
+        onComplete(response.data.vaccine_center);
         modelOnRequestHide();
       }
     } catch (error: any) {
@@ -103,15 +114,15 @@ export default function JobDialog(props: JobDialogProps) {
       const passed = await validate(
         [
           {
-            name: "english",
+            name: "name",
             rules: ["required"],
           },
           {
-            name: "farsi",
+            name: "province",
             rules: ["required"],
           },
           {
-            name: "pashto",
+            name: "district",
             rules: ["required"],
           },
         ],
@@ -121,17 +132,22 @@ export default function JobDialog(props: JobDialogProps) {
       if (!passed) return;
       // 2. update
       let formData = new FormData();
-      if (job?.id) formData.append("id", job.id);
-      formData.append("english", userData.english);
-      formData.append("farsi", userData.farsi);
-      formData.append("pashto", userData.pashto);
-      const response = await axiosClient.post(`job/update`, formData);
+      if (VaccineCenter?.id) formData.append("id", VaccineCenter.id);
+      formData.append("name", userData.name);
+      if (userData.province)
+        formData.append("province_id", userData.province?.id);
+      if (userData.district)
+        formData.append("district_id", userData.district?.id);
+      const response = await axiosClient.post(
+        `epi/vaccine/center/update`,
+        formData
+      );
       if (response.status === 200) {
         toast({
           toastType: "SUCCESS",
           description: response.data.message,
         });
-        onComplete(response.data.job);
+        onComplete(response.data.vaccine_center);
         modelOnRequestHide();
       }
     } catch (error: any) {
@@ -145,11 +161,29 @@ export default function JobDialog(props: JobDialogProps) {
     }
   };
 
+  const destrict = userData?.province && (
+    <APICombobox
+      placeholderText={t("search_item")}
+      errorText={t("no_item")}
+      onSelect={(selection: any) =>
+        setUserData({ ...userData, ["district"]: selection })
+      }
+      lable={t("district")}
+      required={true}
+      selectedItem={userData["district"]?.name}
+      placeHolder={t("select_a")}
+      errorMessage={error.get("district")}
+      apiUrl={"districts/" + userData?.province?.id}
+      mode="single"
+      key={userData?.province?.id}
+    />
+  );
+
   return (
     <Card className="w-fit min-w-[400px] self-center [backdrop-filter:blur(20px)] bg-white/70 dark:!bg-black/40">
       <CardHeader className="relative text-start">
         <CardTitle className="rtl:text-4xl-rtl ltr:text-3xl-ltr text-tertiary">
-          {job ? t("edit") : t("add")}
+          {VaccineCenter ? t("edit") : t("add")}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -160,52 +194,35 @@ export default function JobDialog(props: JobDialogProps) {
           required={true}
           requiredHint={`* ${t("required")}`}
           placeholder={t("translate_en")}
-          defaultValue={userData.english}
+          defaultValue={userData.name}
           type="text"
-          name="english"
-          errorMessage={error.get("english")}
+          name="name"
+          errorMessage={error.get("name")}
           onChange={handleChange}
           startContentDark={true}
           startContent={
             <h1 className="font-bold text-primary-foreground text-[11px] mx-auto">
-              {t("en")}
+              {t("name")}
             </h1>
           }
         />
-        <CustomInput
-          size_="sm"
+        <APICombobox
+          placeholderText={t("search_item")}
+          errorText={t("no_item")}
           required={true}
           requiredHint={`* ${t("required")}`}
-          placeholder={t("translate_fa")}
-          defaultValue={userData.farsi}
-          type="text"
-          name="farsi"
-          errorMessage={error.get("farsi")}
-          onChange={handleChange}
-          startContentDark={true}
-          startContent={
-            <h1 className="font-bold text-primary-foreground text-[11px] mx-auto">
-              {t("fa")}
-            </h1>
+          onSelect={(selection: any) =>
+            setUserData({ ...userData, ["province"]: selection })
           }
+          lable={t("province")}
+          selectedItem={userData["province"]?.name}
+          placeHolder={t("select_a")}
+          errorMessage={error.get("province")}
+          apiUrl={"provinces/" + CountryEnum.afghanistan}
+          mode="single"
         />
-        <CustomInput
-          size_="sm"
-          required={true}
-          requiredHint={`* ${t("required")}`}
-          placeholder={t("translate_ps")}
-          defaultValue={userData.pashto}
-          type="text"
-          name="pashto"
-          errorMessage={error.get("pashto")}
-          onChange={handleChange}
-          startContentDark={true}
-          startContent={
-            <h1 className="font-bold text-primary-foreground text-[11px] mx-auto">
-              {t("ps")}
-            </h1>
-          }
-        />
+
+        {destrict}
       </CardContent>
       <CardFooter className="flex justify-between">
         <Button
@@ -217,7 +234,7 @@ export default function JobDialog(props: JobDialogProps) {
         </Button>
         <PrimaryButton
           disabled={loading}
-          onClick={job ? update : store}
+          onClick={VaccineCenter ? update : store}
           className={`${loading && "opacity-90"}`}
           type="submit"
         >

@@ -85,7 +85,7 @@
   "weak_password": "کمزوری پاسورډ",
   "medium_password": "منځنۍ پاسورډ",
   "strong_password": "قوي پاسورډ",
-  "must_contain": "باید ولري:", 
+  "must_contain": "باید ولري:",
   "is_less_than": "تر دې کم دی",
   "loading": "بارول",
   "update_user_acc_info": "د کارونکي حساب معلومات نوي کړئ",
@@ -199,28 +199,21 @@
   "date_of_birth": "تاریخ تولد",
   "in_active": "غیر فعال",
   "enter": "ننوتل",
-  "activity":"فعالیت",
-  "vaccine_type":"واکسین ډول",
-  "vaccine_center":"واکسین مرکز",
-  "store_infor":"معلومات ثبت کول",
-  "profile_activity":"پروفایل فعالیت",
-  "issued_certificate":"سرتیفیکیت صدور ",
-  "user_activity":"کاروونکی فعالیت",
-  "self_activity":" خپل ځان فعالیت",
-  "event":"پیښه",
-  "ip_address":"آی پی آدرس",
-  "device":"دستګاه",
-  "browser":"لټونى",
-  "vaccine_certificate":"واکسین سرتیفیکیت",
-  "person_info":"شخص معلومات",
-  "vaccination_info":"واکسین معلومات",
-  "card_issuing":"کارت صدور",
-  "letter_of_pass_change":"د پاسورډ د بدلون لیک"
-
-  
-
-
-
-
-
+  "activity": "فعالیت",
+  "vaccine_type": "واکسین ډول",
+  "vaccine_center": "واکسین مرکز",
+  "store_infor": "معلومات ثبت کول",
+  "profile_activity": "پروفایل فعالیت",
+  "issued_certificate": "سرتیفیکیت صدور ",
+  "user_activity": "کاروونکی فعالیت",
+  "self_activity": " خپل ځان فعالیت",
+  "event": "پیښه",
+  "ip_address": "آی پی آدرس",
+  "device": "دستګاه",
+  "browser": "لټونى",
+  "vaccine_certificate": "واکسین سرتیفیکیت",
+  "person_info": "شخص معلومات",
+  "vaccination_info": "واکسین معلومات",
+  "card_issuing": "کارت صدور",
+  "letter_of_pass_change": "د پاسورډ د بدلون لیک"
 }

@@ -15,27 +15,31 @@ import CustomInput from "@/components/custom-ui/input/CustomInput";
 import axiosClient from "@/lib/axois-client";
 import { toast } from "@/components/ui/use-toast";
 import { setServerError, validate } from "@/validation/validation";
-import { Job } from "@/database/tables";
+import { VaccineType } from "@/database/tables";
 
-export interface JobDialogProps {
-  onComplete: (job: Job) => void;
-  job?: Job;
+export interface VaccineTypeProps {
+  onComplete: (vaccineType: VaccineType) => void;
+  vaccineType?: VaccineType;
 }
-export default function JobDialog(props: JobDialogProps) {
-  const { onComplete, job } = props;
+export default function VaccineTypeDialog(props: VaccineTypeProps) {
+  const { onComplete, vaccineType } = props;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(new Map<string, string>());
   const [userData, setUserData] = useState({
     farsi: "",
     english: "",
     pashto: "",
+    doses: "",
+    description: "",
   });
   const { modelOnRequestHide } = useModelOnRequestHide();
   const { t } = useTranslation();
 
   const fetch = async () => {
     try {
-      const response = await axiosClient.get(`job/${job?.id}`);
+      const response = await axiosClient.get(
+        `epi/vaccine/type/${vaccineType?.id}`
+      );
       if (response.status === 200) {
         setUserData(response.data);
       }
@@ -44,7 +48,7 @@ export default function JobDialog(props: JobDialogProps) {
     }
   };
   useEffect(() => {
-    if (job) fetch();
+    if (vaccineType) fetch();
   }, []);
   const handleChange = (e: any) => {
     const { name, value } = e.target;
@@ -69,6 +73,10 @@ export default function JobDialog(props: JobDialogProps) {
             name: "pashto",
             rules: ["required"],
           },
+          {
+            name: "doses",
+            rules: ["required"],
+          },
         ],
         userData,
         setError
@@ -79,14 +87,18 @@ export default function JobDialog(props: JobDialogProps) {
       formData.append("english", userData.english);
       formData.append("farsi", userData.farsi);
       formData.append("pashto", userData.pashto);
-      const response = await axiosClient.post("job/store", formData);
+      formData.append("doses", userData.doses);
+      const response = await axiosClient.post(
+        "epi/vaccine/type/store",
+        formData
+      );
       if (response.status === 200) {
         toast({
           toastType: "SUCCESS",
           description: response.data.message,
         });
-        onComplete(response.data.job);
         modelOnRequestHide();
+        onComplete(response.data.vaccine_type);
       }
     } catch (error: any) {
       setServerError(error.response.data.errors, setError);
@@ -114,6 +126,10 @@ export default function JobDialog(props: JobDialogProps) {
             name: "pashto",
             rules: ["required"],
           },
+          {
+            name: "doses",
+            rules: ["required"],
+          },
         ],
         userData,
         setError
@@ -121,17 +137,21 @@ export default function JobDialog(props: JobDialogProps) {
       if (!passed) return;
       // 2. update
       let formData = new FormData();
-      if (job?.id) formData.append("id", job.id);
+      if (vaccineType?.id) formData.append("id", vaccineType.id);
       formData.append("english", userData.english);
       formData.append("farsi", userData.farsi);
       formData.append("pashto", userData.pashto);
-      const response = await axiosClient.post(`job/update`, formData);
+      formData.append("doses", userData.doses);
+      const response = await axiosClient.post(
+        `epi/vaccine/type/update`,
+        formData
+      );
       if (response.status === 200) {
         toast({
           toastType: "SUCCESS",
           description: response.data.message,
         });
-        onComplete(response.data.job);
+        onComplete(response.data.vaccine_type);
         modelOnRequestHide();
       }
     } catch (error: any) {
@@ -149,7 +169,7 @@ export default function JobDialog(props: JobDialogProps) {
     <Card className="w-fit min-w-[400px] self-center [backdrop-filter:blur(20px)] bg-white/70 dark:!bg-black/40">
       <CardHeader className="relative text-start">
         <CardTitle className="rtl:text-4xl-rtl ltr:text-3xl-ltr text-tertiary">
-          {job ? t("edit") : t("add")}
+          {vaccineType ? t("edit") : t("add")}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -206,6 +226,26 @@ export default function JobDialog(props: JobDialogProps) {
             </h1>
           }
         />
+        <CustomInput
+          size_="sm"
+          dir="ltr"
+          className="rtl:text-end"
+          placeholder={t("enter")}
+          value={userData.doses}
+          type="number"
+          name="doses"
+          min={1}
+          errorMessage={error.get("doses")}
+          onChange={handleChange}
+          startContentDark={true}
+          startContent={
+            <h1 className="font-bold text-primary-foreground text-[11px] mx-auto">
+              {t("doses")}
+            </h1>
+          }
+          required={true}
+          requiredHint={`* ${t("required")}`}
+        />
       </CardContent>
       <CardFooter className="flex justify-between">
         <Button
@@ -217,7 +257,7 @@ export default function JobDialog(props: JobDialogProps) {
         </Button>
         <PrimaryButton
           disabled={loading}
-          onClick={job ? update : store}
+          onClick={vaccineType ? update : store}
           className={`${loading && "opacity-90"}`}
           type="submit"
         >

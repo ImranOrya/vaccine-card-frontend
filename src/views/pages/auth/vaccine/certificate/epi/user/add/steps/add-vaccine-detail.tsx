@@ -63,7 +63,9 @@ export default function AddVaccineDetail() {
 
     if (vaccines) {
       const alreadyExists = vaccines.some(
-        (v: any) => v?.vaccine_type?.id === updatedVac?.vaccine_type?.id
+        (v: any) =>
+          v?.vaccine_type?.id === updatedVac?.vaccine_type?.id &&
+          v?.id != updatedVac.id
       );
       if (alreadyExists) {
         toast({
@@ -93,6 +95,7 @@ export default function AddVaccineDetail() {
   const editVaccine = (vac: Vaccine) => {
     setOnEdit(vac); // Just set for editing, don't remove yet
   };
+
   return (
     <div className="flex flex-col lg:grid lg:grid-cols-2 lg:items-baseline xl:grid-cols-3 gap-x-4 xl:gap-x-12 mt-4 gap-y-3 w-full lg:w-full">
       <AddVaccinePart

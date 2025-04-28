@@ -224,6 +224,9 @@ export type CertificatePayment = {
 export type VaccineType = {
   id: string;
   name: string;
+  description?: string;
+  doses?: string;
+  created_at?: string;
 };
 export type VaccineCenter = {
   id: string;
@@ -277,4 +280,22 @@ export interface ActivityModel {
   device: string;
   browser: string;
   date: string;
+}
+export interface SystemPayment {
+  id: string;
+  active: number;
+  amount: number;
+  finance_user: string;
+  finance_user_id: string;
+  payment_status: string;
+  currency: string;
+  created_at: string;
+}
+export interface Currency {
+  id: string;
+  name: string;
+}
+export interface PaymentStatus {
+  id: number;
+  name: string;
 }

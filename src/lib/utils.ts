@@ -149,6 +149,16 @@ export const toLocaleDate = (date: Date, state: any) => {
     .format();
   return gre;
 };
+export const toDateFormat = (
+  date: Date,
+  format: string,
+  local: any,
+  calender: any
+) => {
+  let object = { date, format };
+  const gre = new DateObject(object).convert(calender, local).format();
+  return gre;
+};
 export const dateObjectToString = (date: DateObject, state: any) => {
   const gre = date
     .convert(state.systemLanguage.calendar, state.systemLanguage.local)

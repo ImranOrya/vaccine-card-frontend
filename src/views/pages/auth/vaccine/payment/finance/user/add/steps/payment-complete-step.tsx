@@ -53,7 +53,7 @@ export default function PaymentCompleteStep(props: ICompleteStepProps) {
       <h1 className="text-green-600 rtl:text-[22px] ltr:text-lg-ltr font-semibold uppercase mt-4">
         {successText}
       </h1>
-      <h1 className="rtl:text-2xl-rtl font-medium text-primary ltr:text-lg-ltr">
+      <h1 className="rtl:text-2xl-rtl font-medium text-primary ltr:text-lg-ltr mb-4">
         {description}
       </h1>
       <Downloader

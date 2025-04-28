@@ -1,6 +1,8 @@
 import {
   ActivityModel,
   Audit,
+  District,
+  Province,
   Role,
   SelectUserPermission,
   SubPermission,
@@ -177,3 +179,10 @@ export interface ActivityPaginationData {
   totalItems: number;
 }
 export type ActivitySearch = "user" | "type";
+export type VaccineCenterType = {
+  id: string;
+  name: string;
+  description?: string;
+  province?: Province;
+  district?: District;
+};

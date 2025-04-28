@@ -11,34 +11,28 @@ import { toast } from "@/components/ui/use-toast";
 import { useGlobalState } from "@/context/GlobalStateContext";
 import axiosClient from "@/lib/axois-client";
 import { toLocaleDate } from "@/lib/utils";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import PrimaryButton from "@/components/custom-ui/button/PrimaryButton";
 import CustomInput from "@/components/custom-ui/input/CustomInput";
 import { Search } from "lucide-react";
 import Shimmer from "@/components/custom-ui/shimmer/Shimmer";
 import TableRowIcon from "@/components/custom-ui/table/TableRowIcon";
-import { UserPermission, VaccineType } from "@/database/tables";
+import { SystemPayment, UserPermission } from "@/database/tables";
 import { PermissionEnum } from "@/lib/constants";
-import VaccineTypeDialog from "./vaccine-type-dialog";
-interface VaccineTypeTabTabProps {
+import PaymentDialog from "./payment-dialog";
+import TextStatusButton from "@/components/custom-ui/button/TextStatusButton";
+interface PaymentTabProps {
   permissions: UserPermission;
 }
-export default function VaccineTypeTab(props: VaccineTypeTabTabProps) {
+export default function PaymentTab(props: PaymentTabProps) {
   const { permissions } = props;
   const { t } = useTranslation();
   const [state] = useGlobalState();
   const [loading, setLoading] = useState(false);
-  const [selected, setSelected] = useState<{
-    visible: boolean;
-    vaccineType: any;
-  }>({
-    visible: false,
-    vaccineType: undefined,
-  });
-  const [vaccineTypes, setVaccineTypes] = useState<{
-    unFilterList: VaccineType[];
-    filterList: VaccineType[];
+  const [systemPayments, setSystemPayments] = useState<{
+    unFilterList: SystemPayment[];
+    filterList: SystemPayment[];
   }>({
     unFilterList: [],
     filterList: [],
@@ -49,15 +43,16 @@ export default function VaccineTypeTab(props: VaccineTypeTabTabProps) {
       setLoading(true);
 
       // 2. Send data
-      const response = await axiosClient.get(`full/vaccine/types`);
-      const fetch = response.data as VaccineType[];
-      setVaccineTypes({
+      const response = await axiosClient.get(`finance/payments`);
+      const fetch = response.data as SystemPayment[];
+      setSystemPayments({
         unFilterList: fetch,
         filterList: fetch,
       });
     } catch (error: any) {
       toast({
         toastType: "ERROR",
+        title: "Error!",
         description: error.response.data.message,
       });
     } finally {
@@ -71,63 +66,25 @@ export default function VaccineTypeTab(props: VaccineTypeTabTabProps) {
   const searchOnChange = (e: any) => {
     const { value } = e.target;
     // 1. Filter
-    const filtered = vaccineTypes.unFilterList.filter((item: VaccineType) =>
-      item.name.toLowerCase().includes(value.toLowerCase())
+    const filtered = systemPayments.unFilterList.filter((item: SystemPayment) =>
+      item.finance_user.toLowerCase().includes(value.toLowerCase())
     );
-    setVaccineTypes({
-      ...vaccineTypes,
+    setSystemPayments({
+      ...systemPayments,
       filterList: filtered,
     });
   };
-  const add = (item: VaccineType) => {
-    setVaccineTypes((prev) => ({
-      unFilterList: [item, ...prev.unFilterList],
-      filterList: [item, ...prev.filterList],
+  const add = (systemPayment: SystemPayment) => {
+    setSystemPayments((prev) => ({
+      unFilterList: [systemPayment, ...prev.unFilterList],
+      filterList: [systemPayment, ...prev.filterList],
     }));
   };
-  const update = (vaccineType: VaccineType) => {
-    setVaccineTypes((prevState) => {
-      const updatedUnFiltered = prevState.unFilterList.map((item) =>
-        item.id === vaccineType.id ? { ...item, name: vaccineType.name } : item
-      );
 
-      return {
-        ...prevState,
-        unFilterList: updatedUnFiltered,
-        filterList: updatedUnFiltered,
-      };
-    });
-  };
-
-  const dailog = useMemo(
-    () => (
-      <NastranModel
-        size="lg"
-        visible={selected.visible}
-        isDismissable={false}
-        button={<button></button>}
-        showDialog={async () => {
-          setSelected({
-            visible: false,
-            vaccineType: undefined,
-          });
-          return true;
-        }}
-      >
-        <VaccineTypeDialog
-          vaccineType={selected.vaccineType}
-          onComplete={update}
-        />
-      </NastranModel>
-    ),
-    [selected.visible]
+  const destination = permissions.sub.get(
+    PermissionEnum.configurations.sub.configuration_destination
   );
-  const vaccineType = permissions.sub.get(
-    PermissionEnum.configurations.sub.configuration_vaccine_type
-  );
-  const hasEdit = vaccineType?.edit;
-  const hasAdd = vaccineType?.add;
-  const hasView = vaccineType?.view;
+  const hasAdd = destination?.add;
   return (
     <div className="relative">
       <div className="rounded-md bg-card p-2 flex gap-x-4 items-baseline mt-4">
@@ -142,10 +99,9 @@ export default function VaccineTypeTab(props: VaccineTypeTabTabProps) {
             }
             showDialog={async () => true}
           >
-            <VaccineTypeDialog onComplete={add} />
+            <PaymentDialog onComplete={add} />
           </NastranModel>
         )}
-
         <CustomInput
           size_="lg"
           placeholder={`${t("search")}...`}
@@ -161,8 +117,12 @@ export default function VaccineTypeTab(props: VaccineTypeTabTabProps) {
         <TableHeader className="rtl:text-3xl-rtl ltr:text-xl-ltr">
           <TableRow className="hover:bg-transparent">
             <TableHead className="text-start">{t("id")}</TableHead>
-            <TableHead className="text-start">{t("name")}</TableHead>
-            <TableHead className="text-start">{t("date")}</TableHead>
+            <TableHead className="text-start">{t("status")}</TableHead>
+            <TableHead className="text-start">{t("amount")}</TableHead>
+            <TableHead className="text-start">{t("finance_user")}</TableHead>
+            <TableHead className="text-start">{t("payment_status")}</TableHead>
+            <TableHead className="text-start">{t("currency")}</TableHead>
+            <TableHead className="text-start">{t("created_at")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody className="rtl:text-xl-rtl ltr:text-lg-ltr">
@@ -177,36 +137,49 @@ export default function VaccineTypeTab(props: VaccineTypeTabTabProps) {
               <TableCell>
                 <Shimmer className="h-[24px] bg-primary/30 w-full rounded-sm" />
               </TableCell>
+              <TableCell>
+                <Shimmer className="h-[24px] bg-primary/30 w-full rounded-sm" />
+              </TableCell>
+              <TableCell>
+                <Shimmer className="h-[24px] bg-primary/30 w-full rounded-sm" />
+              </TableCell>
+              <TableCell>
+                <Shimmer className="h-[24px] bg-primary/30 w-full rounded-sm" />
+              </TableCell>
+              <TableCell>
+                <Shimmer className="h-[24px] bg-primary/30 w-full rounded-sm" />
+              </TableCell>
             </TableRow>
           ) : (
-            vaccineTypes.filterList.map(
-              (vaccineType: VaccineType, index: number) => (
+            systemPayments.filterList.map(
+              (systemPayment: SystemPayment, index: number) => (
                 <TableRowIcon
-                  read={hasView}
+                  read={false}
                   remove={false}
-                  edit={hasEdit}
-                  onEdit={async (item: VaccineType) => {
-                    setSelected({
-                      visible: true,
-                      vaccineType: item,
-                    });
-                  }}
+                  edit={false}
+                  onEdit={async () => {}}
                   key={index}
-                  item={vaccineType}
+                  item={systemPayment}
                   onRemove={async () => {}}
                   onRead={async () => {}}
                 >
                   <TableCell className="font-medium">
-                    {vaccineType.id}
+                    {systemPayment.id}
                   </TableCell>
-                  <TableCell>{vaccineType.name}</TableCell>
                   <TableCell>
-                    {toLocaleDate(
-                      new Date(
-                        vaccineType?.created_at ? vaccineType?.created_at : ""
-                      ),
-                      state
-                    )}
+                    <TextStatusButton
+                      id={systemPayment.active}
+                      value={
+                        systemPayment.active == 1 ? t("active") : t("in_active")
+                      }
+                    />
+                  </TableCell>
+                  <TableCell>{systemPayment.amount}</TableCell>
+                  <TableCell>{systemPayment.finance_user}</TableCell>
+                  <TableCell>{systemPayment.payment_status}</TableCell>
+                  <TableCell>{systemPayment.currency}</TableCell>
+                  <TableCell>
+                    {toLocaleDate(new Date(systemPayment.created_at), state)}
                   </TableCell>
                 </TableRowIcon>
               )
@@ -214,7 +187,6 @@ export default function VaccineTypeTab(props: VaccineTypeTabTabProps) {
           )}
         </TableBody>
       </Table>
-      {dailog}
     </div>
   );
 }

@@ -1,22 +1,25 @@
 import PrimaryButton from "@/components/custom-ui/button/PrimaryButton";
 import APICombobox from "@/components/custom-ui/combobox/APICombobox";
 import CustomInput from "@/components/custom-ui/input/CustomInput";
+import ButtonSpinner from "@/components/custom-ui/spinner/ButtonSpinner";
 import { toast } from "@/components/ui/use-toast";
+import { VaccineCenter } from "@/database/tables";
 import axiosClient from "@/lib/axois-client";
 import { CountryEnum } from "@/lib/constants";
-import { setServerError } from "@/validation/validation";
-import { FileText, Save } from "lucide-react";
+import { setServerError, validate } from "@/validation/validation";
+import { FileText } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 export interface IAddCenterPartProps {
-  onComplete: () => void;
+  onComplete: (vaccine_center: VaccineCenter) => void;
 }
 
 export function AddCenterPart(props: IAddCenterPartProps) {
   const { onComplete } = props;
   const { t } = useTranslation();
   const [error, setError] = useState<Map<string, string>>(new Map());
+  const [loading, setLoading] = useState(false);
 
   const [center, setCenter] = useState<{
     center_name: string;
@@ -27,29 +30,51 @@ export function AddCenterPart(props: IAddCenterPartProps) {
     province: undefined,
     district: undefined,
   });
-  const storeCenter = async () => {
+  const store = async () => {
     try {
-      const response = await axiosClient.post("epi/store/center", {
-        center: center.center_name,
-        province: center?.province?.id,
-        district: center?.district?.id,
-      });
-      if (response.status == 200) {
-        onComplete();
+      if (loading) return;
+      setLoading(true);
+      // 1. Validate form
+      const passed = await validate(
+        [
+          {
+            name: "center_name",
+            rules: ["required"],
+          },
+          {
+            name: "province",
+            rules: ["required"],
+          },
+          {
+            name: "district",
+            rules: ["required"],
+          },
+        ],
+        center,
+        setError
+      );
+      if (!passed) return;
+      // 2. Store
+      let formData = new FormData();
+      formData.append("name", center.center_name);
+      if (center.province) formData.append("province_id", center.province?.id);
+      if (center.district) formData.append("district_id", center.district?.id);
+      const response = await axiosClient.post(
+        "epi/vaccine/center/store",
+        formData
+      );
+      if (response.status === 200) {
         toast({
           toastType: "SUCCESS",
           description: response.data.message,
         });
+        onComplete(response.data.vaccine_center);
       }
     } catch (error: any) {
-      toast({
-        toastType: "ERROR",
-        title: t("error"),
-        description: error.response.data.message,
-      });
       setServerError(error.response.data.errors, setError);
       console.log(error);
-      return false;
+    } finally {
+      setLoading(false);
     }
   };
   return (
@@ -108,11 +133,11 @@ export function AddCenterPart(props: IAddCenterPartProps) {
         />
       )}
       <PrimaryButton
-        onClick={storeCenter}
+        disabled={loading}
+        onClick={store}
         className="rtl:text-lg-rtl font-semibold ltr:text-md-ltr col-span-2"
       >
-        {t("save")}
-        <Save className="text-tertiary size-[18px] transition mx-auto cursor-pointer" />
+        <ButtonSpinner loading={loading}>{t("save")}</ButtonSpinner>
       </PrimaryButton>
     </div>
   );
