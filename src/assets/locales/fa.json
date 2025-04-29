@@ -251,5 +251,9 @@
   "doses": "دوزها",
   "per_data_vac_saved": "اطلاعات شخص با موفقیت ذخیره شد.",
   "center_name": "نام مرکز",
-  "payment_status": "حالت پرداخت"
+  "payment_status": "حالت پرداخت",
+  "event": "عمل",
+  "ip_address": "آی پی آدرس",
+  "device": "دستگاه",
+  "browser": "مرورگر"
 }
